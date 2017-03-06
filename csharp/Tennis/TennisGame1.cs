@@ -1,82 +1,70 @@
+using System;
+using System.Collections.Generic;
+
 namespace Tennis
 {
-    class TennisGame1 : ITennisGame
+    internal class TennisGame1 : ITennisGame
     {
-        private int m_score1 = 0;
-        private int m_score2 = 0;
-        private string player1Name;
-        private string player2Name;
+        private readonly string _player1Name;
+        private readonly string _player2Name;
+        private int _player1Score;
+        private int _player2Score;
 
         public TennisGame1(string player1Name, string player2Name)
         {
-            this.player1Name = player1Name;
-            this.player2Name = player2Name;
-        }
-
-        public void WonPoint(string playerName)
-        {
-            if (playerName == "player1")
-                m_score1 += 1;
-            else
-                m_score2 += 1;
+            _player1Name = player1Name;
+            _player2Name = player2Name;
         }
 
         public string GetScore()
         {
-            string score = "";
-            var tempScore = 0;
-            if (m_score1 == m_score2)
-            {
-                switch (m_score1)
-                {
-                    case 0:
-                        score = "Love-All";
-                        break;
-                    case 1:
-                        score = "Fifteen-All";
-                        break;
-                    case 2:
-                        score = "Thirty-All";
-                        break;
-                    default:
-                        score = "Deuce";
-                        break;
+            if (GameIsOver)
+                return _player1Score > _player2Score ? $"Win for {_player1Name}" : $"Win for {_player2Name}";
+            if (GameIsTied)
+                return _player1Score >= 3 ? "Deuce" : $"{ScoreDescription.For(_player1Score)}-All";
+            if (Player1HasAdvantage)
+                return $"Advantage {_player1Name}";
+            if (Player2HasAdvantage)
+                return $"Advantage {_player2Name}";
 
-                }
-            }
-            else if (m_score1 >= 4 || m_score2 >= 4)
-            {
-                var minusResult = m_score1 - m_score2;
-                if (minusResult == 1) score = "Advantage player1";
-                else if (minusResult == -1) score = "Advantage player2";
-                else if (minusResult >= 2) score = "Win for player1";
-                else score = "Win for player2";
-            }
+            return $"{ScoreDescription.For(_player1Score)}-{ScoreDescription.For(_player2Score)}";
+        }
+
+        private bool GameIsOver => (_player1Score >= 4 || _player2Score >= 4) && Math.Abs(_player1Score - _player2Score) >= 2;
+
+        private bool Player2HasAdvantage => _player2Score > _player1Score && _player2Score >= 4;
+
+        private bool Player1HasAdvantage => _player1Score > _player2Score && _player1Score >= 4;
+
+        private bool GameIsTied => _player1Score == _player2Score;
+
+        public void WonPoint(string playerName)
+        {
+            if (playerName == _player1Name)
+                _player1Score++;
             else
+                _player2Score++;
+        }
+
+        internal static class ScoreDescription
+        {
+            private static readonly IDictionary<int, string> Scores = new Dictionary<int, string>(4)
             {
-                for (var i = 1; i < 3; i++)
-                {
-                    if (i == 1) tempScore = m_score1;
-                    else { score += "-"; tempScore = m_score2; }
-                    switch (tempScore)
-                    {
-                        case 0:
-                            score += "Love";
-                            break;
-                        case 1:
-                            score += "Fifteen";
-                            break;
-                        case 2:
-                            score += "Thirty";
-                            break;
-                        case 3:
-                            score += "Forty";
-                            break;
-                    }
-                }
+                {0, Love},
+                {1, Fifteen},
+                {2, Thirty},
+                {3, Fourty}
+            };
+
+            public static string Love => "Love";
+            public static string Fifteen => "Fifteen";
+            public static string Thirty => "Thirty";
+            public static string Fourty => "Forty";
+
+            public static string For(int score)
+            {
+                return Scores[score];
             }
-            return score;
         }
     }
 }
-
