@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Tennis
 {
@@ -9,53 +8,43 @@ namespace Tennis
     internal class TennisGame1 : ITennisGame
     {
         private readonly Player _player1, _player2;
-        private readonly Player[] _sortedPlayers;
 
         public TennisGame1(string player1Name, string player2Name)
         {
             _player1 = new Player(player1Name);
             _player2 = new Player(player2Name);
-            _sortedPlayers = new[] {_player1, _player2};
         }
 
         public string GetScore()
         {
             if (GameIsWon)
-            {
-                return $"Win for {_sortedPlayers[0]}";
-            }
+                return $"Win for {PlayerInLead}";
 
             if (AtLeastThreePointsScored)
-            {
-                return GameIsTied ? "Deuce" : $"Advantage {_sortedPlayers[0]}";
-            }
+                return GameIsTied 
+                    ? "Deuce" 
+                    : $"Advantage {PlayerInLead}";
 
             return GameIsTied
-                ? $"{Description.For(_sortedPlayers[0].Score)}-All"
+                ? $"{Description.For(PlayerInLead.Score)}-All"
                 : $"{Description.For(_player1.Score)}-{Description.For(_player2.Score)}";
         }
 
         public void WonPoint(string playerName)
         {
-            if (playerName.Equals(_sortedPlayers[0].Name, StringComparison.InvariantCultureIgnoreCase))
-                _sortedPlayers[0].Score++;
+            if (playerName.Equals(_player1.Name))
+                _player1.Score++;
             else
-            {
-                _sortedPlayers[1].Score++;
-                if (_sortedPlayers[1].Score <= _sortedPlayers[0].Score) return;
-
-                // Swap order to maintain descending order in list
-                var temp = _sortedPlayers[0];
-                _sortedPlayers[0] = _sortedPlayers[1];
-                _sortedPlayers[1] = temp;
-            }
+                _player2.Score++;
         }
 
-        private bool GameIsWon => _sortedPlayers.Any(p => p.Score > Forty) && Math.Abs(_sortedPlayers[0].Score - _sortedPlayers[1].Score) >= 2;
+        private bool GameIsWon => (_player1.Score > Forty || _player2.Score > Forty) && Math.Abs(_player1.Score - _player2.Score) >= 2;
 
-        private bool GameIsTied => _sortedPlayers[0].Score == _sortedPlayers[1].Score;
+        private bool GameIsTied => _player1.Score == _player2.Score;
 
-        private bool AtLeastThreePointsScored => _sortedPlayers.All(p => p.Score >= Forty);
+        private bool AtLeastThreePointsScored => _player1.Score >= Forty && _player2.Score >= Forty;
+
+        private Player PlayerInLead => _player1.Score > _player2.Score ? _player1 : _player2;
 
         internal enum Score
         {

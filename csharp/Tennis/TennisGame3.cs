@@ -1,3 +1,5 @@
+using System;
+
 namespace Tennis
 {
     public class TennisGame3 : ITennisGame
@@ -27,7 +29,7 @@ namespace Tennis
                 return "Deuce";
 
             var playerInLead = _player1Score > _player2Score ? _player1Name : _player2Name;
-            var currentLead = (_player1Score - _player2Score) * (_player1Score - _player2Score);
+            var currentLead = Math.Abs(_player1Score - _player2Score);
             return currentLead == 1
                 ? "Advantage " + playerInLead
                 : "Win for " + playerInLead;
