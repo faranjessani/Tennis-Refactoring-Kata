@@ -27,14 +27,12 @@ namespace Tennis
 
             if (AtLeastThreePointsScored)
             {
-                if (GameIsTied)
-                    return "Deuce";
-                return $"Advantage {_sortedPlayers[0]}";
+                return GameIsTied ? "Deuce" : $"Advantage {_sortedPlayers[0]}";
             }
 
-            if (GameIsTied)
-                return $"{Description.For(_sortedPlayers[0].Score)}-All";
-            return $"{Description.For(_player1.Score)}-{Description.For(_player2.Score)}";
+            return GameIsTied
+                ? $"{Description.For(_sortedPlayers[0].Score)}-All"
+                : $"{Description.For(_player1.Score)}-{Description.For(_player2.Score)}";
         }
 
         public void WonPoint(string playerName)
@@ -71,10 +69,10 @@ namespace Tennis
         {
             private static readonly IDictionary<Score, string> Scores = new Dictionary<Score, string>(4)
             {
-                {Score.Love, "Love"},
-                {Score.Fifteen, "Fifteen"},
-                {Score.Thirty, "Thirty"},
-                {Score.Forty, "Forty"}
+                {Love, "Love"},
+                {Fifteen, "Fifteen"},
+                {Thirty, "Thirty"},
+                {Forty, "Forty"}
             };
 
             public static string For(Score score)
